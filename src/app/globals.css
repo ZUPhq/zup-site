@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-yellow: #ffd500;
+  --brand-black: #0a0a0a;
+}
+
+html {
+  background: var(--brand-black);
+}
+
+body {
+  background: transparent;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--brand-yellow);
+  color: var(--brand-black);
+}
+
+/* Hide scrollbar but keep functionality */
+html {
+  scroll-behavior: smooth;
+}
