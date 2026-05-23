@@ -9,7 +9,8 @@ export default function ScrollChip() {
     <button
       onClick={handleClick}
       aria-label="Scroll to start"
-      className="group pointer-events-auto absolute bottom-10 left-1/2 z-20 -translate-x-1/2"
+      className="group pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2"
+      style={{ bottom: "max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
     >
       <span
         className="
