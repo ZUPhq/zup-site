@@ -2,7 +2,7 @@
 
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { OrbitControls, Environment } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import * as THREE from "three";
@@ -46,7 +46,7 @@ function LightningMesh() {
   }, [data]);
 
   useFrame((state, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.3;
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.6;
     if (materialRef.current) {
       const t = state.clock.elapsedTime;
       // Two overlapping sine waves → irregular flicker (not robotic pulse)
@@ -90,14 +90,6 @@ export default function LightningModel() {
         <LightningMesh />
         <Environment preset="city" />
       </Suspense>
-
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={1.5}
-        rotateSpeed={0.8}
-      />
 
       <EffectComposer>
         <Bloom
