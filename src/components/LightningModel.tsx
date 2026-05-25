@@ -245,6 +245,49 @@ function UpMesh({ layout }: { layout: Layout }) {
   );
 }
 
+// Navbar target — combined logo center moves here and shrinks down so it
+// reads as a small wordmark pinned to the top of the viewport.
+// NAVBAR_Y must stay in sync with the value used by NavbarChip so the
+// glass pill wraps the projected 3D logo position exactly.
+const NAVBAR_Y = 1.85;
+const NAVBAR_SCALE = 0.1;
+
+function Logo({ layout }: { layout: Layout }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    const grp = groupRef.current;
+    if (!grp) return;
+
+    const t = heroScrollState.transit;
+    const eased = easeInOutCubic(t);
+    const scale = 1 - eased * (1 - NAVBAR_SCALE);
+
+    // The visual center of the assembled logo sits between the two meshes.
+    const assemblyCenterX = (layout.lightningX + layout.upX) / 2;
+    const assemblyCenterY = (layout.lightningY + layout.upY) / 2;
+
+    // Where we want that visual center to land in world space — lerps from
+    // the assembled center (transit=0) to (0, NAVBAR_Y) at transit=1.
+    const targetX = assemblyCenterX * (1 - eased);
+    const targetY = assemblyCenterY * (1 - eased) + NAVBAR_Y * eased;
+
+    // Because the parent group is scaled, mesh-local positions are scaled
+    // too. Subtracting scale*assemblyCenter cancels that so the visual center
+    // ends up exactly at (targetX, targetY).
+    grp.position.x = targetX - scale * assemblyCenterX;
+    grp.position.y = targetY - scale * assemblyCenterY;
+    grp.scale.setScalar(scale);
+  });
+
+  return (
+    <group ref={groupRef}>
+      <LightningMesh layout={layout} />
+      <UpMesh layout={layout} />
+    </group>
+  );
+}
+
 export default function LightningModel() {
   const layout = useLayout();
 
@@ -253,15 +296,22 @@ export default function LightningModel() {
       camera={{ position: [0, 0, 5], fov: 45 }}
       dpr={[1, 2]}
       gl={{ alpha: true, antialias: true }}
-      style={{ background: "transparent" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        background: "transparent",
+        zIndex: 40,
+      }}
     >
       <ambientLight intensity={0.5} />
       <directionalLight position={[5, 5, 5]} intensity={1.2} />
       <directionalLight position={[-5, -3, -5]} intensity={0.4} />
 
       <Suspense fallback={null}>
-        <LightningMesh layout={layout} />
-        <UpMesh layout={layout} />
+        <Logo layout={layout} />
         <Environment preset="city" />
       </Suspense>
 
