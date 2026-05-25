@@ -7,6 +7,7 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import * as THREE from "three";
 import { heroScrollState } from "@/hooks/useHeroScroll";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const LIGHTNING_SVG = "/lightning.svg";
 const LOGO_REST_SVG = "/logo-rest.svg";
@@ -290,12 +291,19 @@ function Logo({ layout }: { layout: Layout }) {
 
 export default function LightningModel() {
   const layout = useLayout();
+  const isMobile = useIsMobile();
 
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 45 }}
-      dpr={[1, 2]}
-      gl={{ alpha: true, antialias: true }}
+      // Cap dpr lower on mobile: high-density phone screens (dpr=3) would
+      // otherwise render ~9x as many pixels per frame as a 1x desktop.
+      dpr={isMobile ? [1, 1.5] : [1, 2]}
+      gl={{
+        alpha: true,
+        antialias: !isMobile,
+        powerPreference: "high-performance",
+      }}
       style={{
         position: "fixed",
         inset: 0,
@@ -315,15 +323,19 @@ export default function LightningModel() {
         <Environment preset="city" />
       </Suspense>
 
-      <EffectComposer>
-        <Bloom
-          intensity={0.3}
-          luminanceThreshold={0.7}
-          luminanceSmoothing={0.6}
-          mipmapBlur
-          radius={0.6}
-        />
-      </EffectComposer>
+      {/* Bloom is multi-pass full-screen postprocessing — fine on desktop,
+          a major frame-time hit on mobile GPUs. Skip it on touch devices. */}
+      {!isMobile && (
+        <EffectComposer>
+          <Bloom
+            intensity={0.3}
+            luminanceThreshold={0.7}
+            luminanceSmoothing={0.6}
+            mipmapBlur
+            radius={0.6}
+          />
+        </EffectComposer>
+      )}
     </Canvas>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 // ShaderGradient props are valid at runtime but the library's TS types are incomplete.
 const shaderProps = {
@@ -45,7 +46,30 @@ const shaderProps = {
   wireframe: false,
 };
 
+// Static CSS gradient that approximates the shader's mood (yellow halos on
+// near-black) without spinning up a second full-screen WebGL context on
+// mobile, where the live shader plus the 3D logo canvas would tank framerate.
+const MOBILE_FALLBACK_STYLE: React.CSSProperties = {
+  background: [
+    "radial-gradient(ellipse 80% 60% at 25% 25%, rgba(255, 213, 0, 0.22), transparent 60%)",
+    "radial-gradient(ellipse 70% 65% at 75% 75%, rgba(255, 213, 0, 0.14), transparent 60%)",
+    "#0a0a0a",
+  ].join(", "),
+};
+
 export default function ShaderBackground() {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={MOBILE_FALLBACK_STYLE}
+      />
+    );
+  }
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <ShaderGradientCanvas
