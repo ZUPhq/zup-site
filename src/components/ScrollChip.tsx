@@ -1,16 +1,25 @@
 "use client";
 
+import { useHeroScroll } from "@/hooks/useHeroScroll";
+
 export default function ScrollChip() {
+  const { progress } = useHeroScroll();
+  const opacity = Math.max(0, 1 - progress * 4);
+
   const handleClick = () => {
-    window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+    window.scrollTo({ top: window.innerHeight * 1.4, behavior: "smooth" });
   };
 
   return (
     <button
       onClick={handleClick}
       aria-label="Scroll to start"
-      className="group pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2"
-      style={{ bottom: "max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
+      className="group absolute left-1/2 z-20 -translate-x-1/2"
+      style={{
+        bottom: "max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem))",
+        opacity,
+        pointerEvents: opacity < 0.05 ? "none" : "auto",
+      }}
     >
       <span
         className="
